@@ -10,7 +10,6 @@ import '../quiz_result_widget/timer_row.dart';
 
 class QuizResultPage extends StatelessWidget {
   final int remainingSeconds;
-
   final int totalSeconds;
 
   const QuizResultPage({
@@ -28,19 +27,31 @@ class QuizResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final bg = isDark ? const Color(0xFF0B1220) : const Color(0xFFF3F5F7);
+    final card = isDark ? const Color(0xFF0F1A2B) : Colors.white;
+    final titleColor = isDark
+        ? const Color(0xFFEAF0FF)
+        : const Color(0xFF1F2937);
+    final bodyColor = isDark ? Colors.white70 : const Color(0xFF6B7280);
+    final linkish = isDark ? const Color(0xFF8FB3FF) : const Color(0xFF6D86B3);
+    final trackColor = isDark ? Colors.white12 : const Color(0xFFD8DEE8);
+
     return BlocBuilder<QuizCubit, QuizState>(
       builder: (context, state) {
         final percent = state.percent.clamp(0.0, 1.0);
         final percentText = (percent * 100).round();
 
-        final int ball =
-        state.correctCount >= (state.questions.length * 0.8) ? 1 : 0;
+        // 70% dan yuqori bo‘lsa 1 ball
+        final int ball = percent >= 0.7 ? 1 : 0;
 
         final leftText = _format(totalSeconds);
         final rightText = _format(remainingSeconds);
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF3F5F7),
+          backgroundColor: bg,
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -53,15 +64,20 @@ class QuizResultPage extends StatelessWidget {
                       constraints: const BoxConstraints(maxWidth: 380),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: card,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 18,
-                              offset: const Offset(0, 10),
-                              color: Colors.black.withOpacity(0.08),
-                            ),
-                          ],
+                          boxShadow: isDark
+                              ? []
+                              : [
+                                  BoxShadow(
+                                    blurRadius: 18,
+                                    offset: const Offset(0, 10),
+                                    color: Colors.black.withOpacity(0.08),
+                                  ),
+                                ],
+                          border: isDark
+                              ? Border.all(color: Colors.white10)
+                              : null,
                         ),
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
@@ -73,18 +89,18 @@ class QuizResultPage extends StatelessWidget {
                                 LayoutBuilder(
                                   builder: (context, c) {
                                     final availableW = c.maxWidth;
-                                    final ringSize =
-                                    (availableW * 0.65).clamp(90.0, 120.0);
+                                    final ringSize = (availableW * 0.65).clamp(
+                                      90.0,
+                                      120.0,
+                                    );
 
                                     return SizedBox(
                                       width: ringSize,
                                       height: ringSize,
-                                      child: Center(
-                                        child: SegmentedRingIndicator(
-                                          value: percent,
-                                          text: "$percentText%",
-                                          trackColor: const Color(0xFFD8DEE8),
-                                        ),
+                                      child: SegmentedRingIndicator(
+                                        value: percent,
+                                        text: "$percentText%",
+                                        trackColor: trackColor,
                                       ),
                                     );
                                   },
@@ -93,12 +109,9 @@ class QuizResultPage extends StatelessWidget {
 
                                 Text(
                                   "Yakunlandi",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
+                                  style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF1F2937),
+                                    color: titleColor,
                                   ),
                                 ),
                                 const SizedBox(height: 6),
@@ -108,11 +121,8 @@ class QuizResultPage extends StatelessWidget {
                                       ? "Afsuski sizga ball taqdim etilmadi"
                                       : "Sizga 1 ball taqdim etildi",
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                    color: const Color(0xFF6B7280),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: bodyColor,
                                     height: 1.25,
                                   ),
                                 ),
@@ -121,11 +131,8 @@ class QuizResultPage extends StatelessWidget {
                                 Text(
                                   "Ja’mi to’plangan ballaringiz soni: $ball ta",
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                    color: const Color(0xFF6D86B3),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: linkish,
                                     height: 1.25,
                                   ),
                                 ),
@@ -133,11 +140,8 @@ class QuizResultPage extends StatelessWidget {
 
                                 Text(
                                   "Umumiy testlar soni: ${state.questions.length}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                    color: const Color(0xFF6B7280),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: bodyColor,
                                   ),
                                 ),
                                 const SizedBox(height: 14),
@@ -177,8 +181,3 @@ class QuizResultPage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
